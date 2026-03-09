@@ -2,15 +2,13 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Month;
-
 
 @Data
 @EqualsAndHashCode(exclude = {"id"})
+@NoArgsConstructor
 public class Film {
-    private long id;
+    private Long id;
     @NonNull
     private String name;
     @NonNull
@@ -18,6 +16,5 @@ public class Film {
     @NonNull
     private LocalDate releaseDate;
     @NonNull
-    private Duration duration;
-
+    private Integer duration;
 }
