@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class ValidationFilm {
-    private final static Logger log = LoggerFactory.getLogger(ValidationFilm.class);
+    private static final Logger log = LoggerFactory.getLogger(ValidationFilm.class);
 
     public static void validation(Film film) {
         log.info("Начинается валидация фильма с ID: {}", film.getId());

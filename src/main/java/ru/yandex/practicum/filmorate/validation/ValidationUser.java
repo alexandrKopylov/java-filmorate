@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ValidationUser {
-    private final static Logger log = LoggerFactory.getLogger(ValidationUser.class);
+    private static final Logger log = LoggerFactory.getLogger(ValidationUser.class);
 
     public static void validation(User user) {
         log.info("Начинается валидация пользователя с ID: {}", user.getId());
