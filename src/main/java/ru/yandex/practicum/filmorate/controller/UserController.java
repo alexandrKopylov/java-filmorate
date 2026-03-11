@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validation.ValidationUser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class UserController {
     @GetMapping
     public Collection<User> findAll() {
         log.debug("Получен запрос на получение всех пользователей. Количество пользователей: {}", users.size());
-        return users.values();
+        return new ArrayList<>(users.values());
     }
 
     // Добавление нового пользователя
@@ -49,6 +50,11 @@ public class UserController {
     // Обновление данных пользователя
     @PutMapping
     public User update(@RequestBody User newUser) {
+
+        if (newUser.getId() == null) {
+            log.warn("Попытка обновления пользователя без указания id");
+            throw new ConditionsNotMetValidationException("Id должен быть указан");
+        }
 
         try {
             ValidationUser.validation(newUser);

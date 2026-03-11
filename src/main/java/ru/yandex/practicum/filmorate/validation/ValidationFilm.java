@@ -14,10 +14,7 @@ public class ValidationFilm {
     public static void validation(Film film) {
         log.info("Начинается валидация фильма с ID: {}", film.getId());
 
-        if (film.getId() == null) {
-            log.warn("Попытка обновления фильма без указания id");
-            throw new ConditionsNotMetValidationException("Id должен быть указан");
-        }
+
 
         if (film.getName().isBlank()) {
             log.error("Ошибка валидации: имя фильма не указано. Film ID: {}", film.getId());

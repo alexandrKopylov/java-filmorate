@@ -14,10 +14,7 @@ public class ValidationUser {
     public static void validation(User user) {
         log.info("Начинается валидация пользователя с ID: {}", user.getId());
 
-        if (user.getId() == null) {
-            log.warn("Попытка обновления пользователя без указания id");
-            throw new ConditionsNotMetValidationException("Id должен быть указан");
-        }
+
 
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.error("Ошибка валидации: email некорректен или отсутствует. User ID: {}, Email: {}",
