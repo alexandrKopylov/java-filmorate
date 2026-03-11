@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.Utils;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetValidationException;
@@ -10,22 +9,23 @@ import ru.yandex.practicum.filmorate.exception.NotFoundValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validation.ValidationFilm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Map<Long, Film> films = new HashMap<>();
 
     // Получение всех фильмов
     @GetMapping
     public Collection<Film> findAll() {
         log.debug("Получен запрос на получение всех фильмов. Количество фильмов: {}", films.size());
-        return films.values();
+        return new ArrayList<>(films.values());
     }
 
     // Добавление фильма
@@ -46,22 +46,14 @@ public class FilmController {
     // Обновление фильма
     @PutMapping
     public Film update(@RequestBody Film newFilm) {
-        if (newFilm.getId() == null) {
-            log.warn("Попытка обновления фильма без указания id");
-            throw new ConditionsNotMetValidationException("Id должен быть указан");
-        }
 
         try {
             ValidationFilm.validation(newFilm);
 
             if (films.containsKey(newFilm.getId())) {
-                Film oldFilm = films.get(newFilm.getId());
-                oldFilm.setDescription(newFilm.getDescription());
-                oldFilm.setDuration(newFilm.getDuration());
-                oldFilm.setName(newFilm.getName());
-                oldFilm.setReleaseDate(newFilm.getReleaseDate());
+                films.put(newFilm.getId(), newFilm);
                 log.info("Обновлён фильм с id={}, новое название: '{}'", newFilm.getId(), newFilm.getName());
-                return oldFilm;
+                return newFilm;
             } else {
                 log.warn("Попытка обновления несуществующего фильма с id={}", newFilm.getId());
                 throw new NotFoundValidationException("Фильм с id = " + newFilm.getId() + " не найден");

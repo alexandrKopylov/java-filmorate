@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.validation;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetValidationException;
 import ru.yandex.practicum.filmorate.exception.LocalDateValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -7,15 +8,16 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.time.Month;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
+@Slf4j
 public class ValidationFilm {
-    private static final Logger log = LoggerFactory.getLogger(ValidationFilm.class);
 
     public static void validation(Film film) {
         log.info("Начинается валидация фильма с ID: {}", film.getId());
+
+        if (film.getId() == null) {
+            log.warn("Попытка обновления фильма без указания id");
+            throw new ConditionsNotMetValidationException("Id должен быть указан");
+        }
 
         if (film.getName().isBlank()) {
             log.error("Ошибка валидации: имя фильма не указано. Film ID: {}", film.getId());
@@ -43,7 +45,6 @@ public class ValidationFilm {
             throw new ConditionsNotMetValidationException("Продолжительность фильма должна быть положительным числом");
         }
         log.debug("Проверка продолжительности пройдена. Duration: {}", film.getDuration());
-
         log.info("Валидация фильма завершена успешно. Film ID: {}", film.getId());
     }
 }

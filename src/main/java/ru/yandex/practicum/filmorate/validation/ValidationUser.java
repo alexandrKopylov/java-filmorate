@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.validation;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.BirthdayValidationException;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetValidationException;
 import ru.yandex.practicum.filmorate.exception.LoginValidationException;
@@ -7,14 +8,16 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 public class ValidationUser {
-    private static final Logger log = LoggerFactory.getLogger(ValidationUser.class);
 
     public static void validation(User user) {
         log.info("Начинается валидация пользователя с ID: {}", user.getId());
+
+        if (user.getId() == null) {
+            log.warn("Попытка обновления пользователя без указания id");
+            throw new ConditionsNotMetValidationException("Id должен быть указан");
+        }
 
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.error("Ошибка валидации: email некорректен или отсутствует. User ID: {}, Email: {}",
@@ -42,7 +45,6 @@ public class ValidationUser {
             throw new BirthdayValidationException("Дата рождения не может быть в будущем");
         }
         log.debug("Проверка даты рождения пройдена. Birthday: {}", user.getBirthday());
-
         log.info("Валидация пользователя завершена успешно. User ID: {}", user.getId());
     }
 }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.Utils;
 import ru.yandex.practicum.filmorate.exception.*;
@@ -12,11 +11,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Long, User> users = new HashMap<>();
 
     // Получение списка пользователей
@@ -50,10 +49,6 @@ public class UserController {
     // Обновление данных пользователя
     @PutMapping
     public User update(@RequestBody User newUser) {
-        if (newUser.getId() == null) {
-            log.warn("Попытка обновления пользователя без указания id");
-            throw new ConditionsNotMetValidationException("Id должен быть указан");
-        }
 
         try {
             ValidationUser.validation(newUser);
@@ -64,13 +59,9 @@ public class UserController {
                     throw new DuplicatedDataValidationException("Этот имейл уже используется");
                 }
 
-                User oldUser = users.get(newUser.getId());
-                oldUser.setEmail(newUser.getEmail());
-                oldUser.setName(newUser.getName());
-                oldUser.setLogin(newUser.getLogin());
-                oldUser.setBirthday(newUser.getBirthday());
+                users.put(newUser.getId(), newUser);
                 log.info("Обновлён пользователь с id={}, новый email: '{}'", newUser.getId(), newUser.getEmail());
-                return oldUser;
+                return newUser;
             } else {
                 log.warn("Попытка обновления несуществующего пользователя с id={}", newUser.getId());
                 throw new NotFoundValidationException("User с id = " + newUser.getId() + " не найден");
