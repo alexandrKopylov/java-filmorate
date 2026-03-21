@@ -1,91 +1,80 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.Utils;
-import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validation.ValidationUser;
+import ru.yandex.practicum.filmorate.service.UserService;
+import jakarta.validation.Valid;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Slf4j
-@RestController
 @RequestMapping("/users")
+@RestController
 public class UserController {
+    private final UserService userService;
 
-    private final Map<Long, User> users = new HashMap<>();
-
-    // Получение списка пользователей
-    @GetMapping
-    public Collection<User> findAll() {
-        log.debug("Получен запрос на получение всех пользователей. Количество пользователей: {}", users.size());
-        return new ArrayList<>(users.values());
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    // Добавление нового пользователя
     @PostMapping
-    public User create(@RequestBody User user) {
-        try {
-            ValidationUser.validation(user);
-
-            if (containsEmail(user.getEmail())) {
-                log.warn("Попытка регистрации с уже существующим email: {}", user.getEmail());
-                throw new DuplicatedDataValidationException("Этот имейл уже используется");
-            }
-
-            user.setId(Utils.getNextId(users.keySet()));
-            users.put(user.getId(), user);
-            log.info("Добавлен новый пользователь с id={}, email: '{}'", user.getId(), user.getEmail());
-            return user;
-        } catch (ConditionsNotMetValidationException | LoginValidationException | BirthdayValidationException e) {
-            log.warn("Ошибка валидации при добавлении пользователя: {}", e.getMessage());
-            throw e;
-        }
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
+        log.info("POST /users - создание пользователя");
+        User createdUser = userService.create(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    // Обновление данных пользователя
     @PutMapping
-    public User update(@RequestBody User newUser) {
-
-        if (newUser.getId() == null) {
-            log.warn("Попытка обновления пользователя без указания id");
-            throw new ConditionsNotMetValidationException("Id должен быть указан");
-        }
-
-        try {
-            ValidationUser.validation(newUser);
-
-            if (users.containsKey(newUser.getId())) {
-                if (containsEmailAndId(newUser)) {
-                    log.warn("Попытка обновления email на уже существующий для другого пользователя: {}", newUser.getEmail());
-                    throw new DuplicatedDataValidationException("Этот имейл уже используется");
-                }
-
-                users.put(newUser.getId(), newUser);
-                log.info("Обновлён пользователь с id={}, новый email: '{}'", newUser.getId(), newUser.getEmail());
-                return newUser;
-            } else {
-                log.warn("Попытка обновления несуществующего пользователя с id={}", newUser.getId());
-                throw new NotFoundValidationException("User с id = " + newUser.getId() + " не найден");
-            }
-        } catch (ConditionsNotMetValidationException | LoginValidationException | BirthdayValidationException e) {
-            log.warn("Ошибка валидации при обновлении пользователя id={}: {}", newUser.getId(), e.getMessage());
-            throw e;
-        }
+    public ResponseEntity<User> update(@Valid @RequestBody User user) {
+        log.info("PUT /users - обновление пользователя с ID: {}", user.getId());
+        User updatedUser = userService.update(user);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    private boolean containsEmail(String email) {
-        return users.values().stream()
-                .map(User::getEmail)
-                .anyMatch(x -> x.equals(email));
+    @GetMapping
+    public ResponseEntity<List<User>> getAll() {
+        log.info("GET /users - получение всех пользователей");
+        List<User> users = userService.getAll();
+        return ResponseEntity.ok(users);
     }
 
-    private boolean containsEmailAndId(User user) {
-        return users.values().stream()
-                .anyMatch(x -> x.getEmail().equals(user.getEmail()) && !x.getId().equals(user.getId()));
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable Long id) {
+        log.info("GET /users/{} - получение пользователя по ID", id);
+        User user = userService.getById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<Void> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("PUT /users/{}/friends/{} - добавление друга", id, friendId);
+        userService.addFriend(id, friendId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<Void> removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("DELETE /users/{}/friends/{} - удаление друга", id, friendId);
+        userService.removeFriend(id, friendId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/friends")
+    public ResponseEntity<List<User>> getFriends(@PathVariable Long id) {
+        log.info("GET /users/{}/friends - получение друзей пользователя", id);
+        List<User> friends = userService.getFriends(id);
+        return ResponseEntity.ok(friends);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        log.info("GET /users/{}/friends/common/{} - получение общих друзей", id, otherId);
+        List<User> commonFriends = userService.getCommonFriends(id, otherId);
+        return ResponseEntity.ok(commonFriends);
     }
 }
