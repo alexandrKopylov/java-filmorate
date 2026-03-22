@@ -15,9 +15,10 @@ import java.util.List;
 @Service
 @Slf4j
 public class FilmService {
-    private final FilmStorage filmStorage;
+
     private final UserStorage userStorage;
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
+    private final FilmStorage filmStorage;
+    private static final LocalDate MIN_DATE_RELEASE = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
@@ -42,7 +43,7 @@ public class FilmService {
     public Film getById(Long id) {
         return filmStorage.getById(id)
                 .orElseThrow(() -> {
-                    log.error("Фильм с ID {} не найден", id);
+                    log.error("Фильм с id {} не найден", id);
                     return new NotFoundValidationException("Фильм с таким id не найден");
                 });
     }
@@ -51,7 +52,7 @@ public class FilmService {
         // Проверяем, существует ли фильм
         filmStorage.getById(filmId)
                 .orElseThrow(() -> {
-                    log.error("Фильм с ID {} не найден при добавлении лайка", filmId);
+                    log.error("Фильм с id {} не найден при добавлении лайка", filmId);
                     return new NotFoundValidationException("Фильм с таким id не найден");
                 });
 
@@ -73,7 +74,6 @@ public class FilmService {
                     return new NotFoundValidationException("Фильм с таким id не найден");
                 });
 
-        // Проверяем, существует ли пользователь
         userStorage.getById(userId)
                 .orElseThrow(() -> {
                     log.error("Пользователь с ID {} не найден при удалении лайка", userId);
@@ -91,7 +91,7 @@ public class FilmService {
     }
 
     private void validateFilm(Film film) {
-        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+        if (film.getReleaseDate().isBefore(MIN_DATE_RELEASE)) {
             throw new ValidationException("Дата релиза должна быть не раньше 28 декабря 1895 года");
         }
     }

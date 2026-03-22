@@ -2,9 +2,9 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> create(@Valid @RequestBody Film film) {
-        log.info("POST /films - создание фильма: {}", film.getName());
+        log.info("Создание фильма (POST/films): {}", film.getName());
         Film createdFilm = filmService.create(film);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
     }
@@ -38,14 +38,14 @@ public class FilmController {
 
     @GetMapping
     public ResponseEntity<List<Film>> getAll() {
-        log.info("GET /films - получение всех фильмов");
+        log.info("Получение всех фильмов (GET /films)");
         List<Film> films = filmService.getAll();
         return ResponseEntity.ok(films);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Film> getById(@PathVariable Long id) {
-        log.info("GET /films/{} - получение фильма по ID", id);
+        log.info("GET /films/{} - получение фильма по ID  ", id);
         Film film = filmService.getById(id);
         return ResponseEntity.ok(film);
     }
@@ -57,17 +57,17 @@ public class FilmController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<Void> removeLike(@PathVariable Long id, @PathVariable Long userId) {
-        log.info("DELETE /films/{}/like/{} - удаление лайка", id, userId);
-        filmService.removeLike(id, userId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/popular")
     public ResponseEntity<List<Film>> getPopular(@RequestParam(defaultValue = "10") int count) {
         log.info("GET /films/popular?count={} - получение популярных фильмов", count);
         List<Film> films = filmService.getPopular(count);
         return ResponseEntity.ok(films);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public ResponseEntity<Void> removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("DELETE /films/{}/like/{} - удаление лайка", id, userId);
+        filmService.removeLike(id, userId);
+        return ResponseEntity.ok().build();
     }
 }

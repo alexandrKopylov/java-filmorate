@@ -24,28 +24,28 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User user) {
-        log.info("POST /users - создание пользователя");
+        log.info("Создание пользователя (POST/users )");
         User createdUser = userService.create(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PutMapping
     public ResponseEntity<User> update(@Valid @RequestBody User user) {
-        log.info("PUT /users - обновление пользователя с ID: {}", user.getId());
+        log.info("Обновление пользователя (PUT/users) с ID: {}", user.getId());
         User updatedUser = userService.update(user);
         return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping
     public ResponseEntity<List<User>> getAll() {
-        log.info("GET /users - получение всех пользователей");
+        log.info("Получение всех пользователей (GET /users)");
         List<User> users = userService.getAll();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
-        log.info("GET /users/{} - получение пользователя по ID", id);
+        log.info("GET/users/XXX - получение пользователя по ID = {} ", id);
         User user = userService.getById(id);
         return ResponseEntity.ok(user);
     }
