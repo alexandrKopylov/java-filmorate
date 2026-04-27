@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public class UserDbStorage extends BaseRepository<User> implements UserStorage{
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
+
     public UserDbStorage(JdbcTemplate jdbc, RowMapper mapper) {
         super(jdbc, mapper);
     }
